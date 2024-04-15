@@ -5,11 +5,12 @@ const { combine, timestamp, printf } = format;
 
 // GitHub API key
 const GITHUB_API_KEY = process.env.GITHUB_API_KEY;
+const webhookUrl = process.env.DISCORD_WEBHOOK_URL;
 
 // Axios instance with default headers with API Key
 const axiosInstance = axios.create({
 	headers: {
-		Authorization: `${GITHUB_API_KEY}`,
+		Authorization: `Bearer ${GITHUB_API_KEY}`,
 	},
 });
 
@@ -22,10 +23,7 @@ const logger = createLogger({
 			({ level, message, timestamp }) => `${timestamp} [${level}]: ${message}`
 		)
 	),
-	transports: [
-		new transports.File({ filename: "error.log", level: "error" }),
-		new transports.File({ filename: "combined.log" }),
-	],
+	transports: [new transports.File({ filename: "error.log", level: "error" })],
 });
 
 // Fetch the commit data using async and await
@@ -38,17 +36,32 @@ const fetch_event_data = async (USER) => {
 		if (data && data.length > 0) {
 			var date = new Date(data[0].created_at);
 			if (check_commit(date)) {
+				// check for the PushEvent
 				// Format the data
-				if (data[0].payload.commits[0]) {
-					let message = formatted_Message(
-						USER,
-						data[0].repo.name,
-						data[0].payload.commits[0].message
-					);
-					// Send the formatted Data
-					send_commit_message(message);
+				if (data[0].type == "PushEvent") {
+					if (data[0].payload.commits[0]) {
+						let message = formatted_Message(
+							USER,
+							data[0].repo.name,
+							data[0].payload.commits[0].message
+						);
+						// Send the formatted Data
+						send_commit_message(message);
+					} else {
+						logger.info(`Something went wrong - ${USER}`);
+					}
 				} else {
-					logger.info(`Something went wrong - ${USER}`);
+					if (data[0]?.repo?.name) {
+						let message = formatted_Message(
+							USER,
+							data[0].repo.name,
+							"No code changes; maybe repo creation or other Event ->"
+						);
+						// Send the formatted Data
+						send_commit_message(message);
+					} else {
+						logger.info(`Something went wrong - ${USER}`);
+					}
 				}
 			} else {
 				// console.log(`No commits for today - ${USER}`);
@@ -96,15 +109,13 @@ const formatted_Message = (USER, repository, commit_message) => {
 
 // Send the commit message to discord along with the commit url
 const send_commit_message = async (message) => {
-	console.log(message);
-	// const webhookUrl = process.env.DISCORD_WEBHOOK_URL;
-	// try {
-	// 	// Make a POST request to the webhook URL with message payload
-	// 	await axios.post(webhookUrl, { content: message });
-	// 	logger.info("Message sent to Discord successfully.");
-	// } catch (error) {
-	// 	logger.error("Error sending message to Discord:", error);
-	// }
+	try {
+		// Make a POST request to the webhook URL with message payload
+		await axios.post(webhookUrl, { content: message });
+		logger.info("Message sent to Discord successfully.");
+	} catch (error) {
+		logger.error("Error sending message to Discord:", error);
+	}
 };
 
 const lineReader = require("line-reader");
