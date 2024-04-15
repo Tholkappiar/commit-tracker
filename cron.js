@@ -5,7 +5,6 @@ const { combine, timestamp, printf } = format;
 
 // GitHub API key
 const GITHUB_API_KEY = process.env.GITHUB_API_KEY;
-console.log(GITHUB_API_KEY);
 
 // Axios instance with default headers with API Key
 const axiosInstance = axios.create({
@@ -98,14 +97,14 @@ const formatted_Message = (USER, repository, commit_message) => {
 // Send the commit message to discord along with the commit url
 const send_commit_message = async (message) => {
 	console.log(message);
-	const webhookUrl = process.env.DISCORD_WEBHOOK_URL;
-	try {
-		// Make a POST request to the webhook URL with message payload
-		await axios.post(webhookUrl, { content: message });
-		logger.info("Message sent to Discord successfully.");
-	} catch (error) {
-		logger.error("Error sending message to Discord:", error);
-	}
+	// const webhookUrl = process.env.DISCORD_WEBHOOK_URL;
+	// try {
+	// 	// Make a POST request to the webhook URL with message payload
+	// 	await axios.post(webhookUrl, { content: message });
+	// 	logger.info("Message sent to Discord successfully.");
+	// } catch (error) {
+	// 	logger.error("Error sending message to Discord:", error);
+	// }
 };
 
 const lineReader = require("line-reader");
