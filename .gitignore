@@ -1,3 +1,5 @@
 node_modules
 error.log
 combined.log
+.env
+usernames.txt
