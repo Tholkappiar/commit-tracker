@@ -55,7 +55,7 @@ const fetch_event_data = async (USER) => {
 						let message = formatted_Message(
 							USER,
 							data[0].repo.name,
-							"No code changes; maybe repo creation or other Event ->"
+							`No code changes; Event ${data[0].type} ->`
 						);
 						// Send the formatted Data
 						send_commit_message(message);
@@ -109,13 +109,14 @@ const formatted_Message = (USER, repository, commit_message) => {
 
 // Send the commit message to discord along with the commit url
 const send_commit_message = async (message) => {
-	try {
-		// Make a POST request to the webhook URL with message payload
-		await axios.post(webhookUrl, { content: message });
-		logger.info("Message sent to Discord successfully.");
-	} catch (error) {
-		logger.error("Error sending message to Discord:", error);
-	}
+	console.log(message);
+	// try {
+	// 	// Make a POST request to the webhook URL with message payload
+	// 	await axios.post(webhookUrl, { content: message });
+	// 	logger.info("Message sent to Discord successfully.");
+	// } catch (error) {
+	// 	logger.error("Error sending message to Discord:", error);
+	// }
 };
 
 const lineReader = require("line-reader");
