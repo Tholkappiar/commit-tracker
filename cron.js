@@ -2,6 +2,7 @@ const axios = require("axios");
 require("dotenv").config();
 const { createLogger, transports, format } = require("winston");
 const { combine, timestamp, printf } = format;
+const lineReader = require("line-reader");
 
 // GitHub API key
 const GITHUB_API_KEY = process.env.GITHUB_API_KEY;
@@ -24,6 +25,7 @@ const logger = createLogger({
 		)
 	),
 	transports: [new transports.File({ filename: "error.log", level: "error" })],
+	transports: [new transports.File({ filename: "error.log", level: "info" })],
 });
 
 // Fetch the commit data using async and await
@@ -46,7 +48,7 @@ const fetch_event_data = async (USER) => {
 							data[0].payload.commits[0].message
 						);
 						// Send the formatted Data
-						send_commit_message(message);
+						send_commit_message(message, USER);
 					} else {
 						logger.info(`Something went wrong - ${USER}`);
 					}
@@ -58,7 +60,7 @@ const fetch_event_data = async (USER) => {
 							`No code changes; Event ${data[0].type} ->`
 						);
 						// Send the formatted Data
-						send_commit_message(message);
+						send_commit_message(message, USER);
 					} else {
 						logger.info(`Something went wrong - ${USER}`);
 					}
@@ -108,18 +110,15 @@ const formatted_Message = (USER, repository, commit_message) => {
 };
 
 // Send the commit message to discord along with the commit url
-const send_commit_message = async (message) => {
-	console.log(message);
-	// try {
-	// 	// Make a POST request to the webhook URL with message payload
-	// 	await axios.post(webhookUrl, { content: message });
-	// 	logger.info("Message sent to Discord successfully.");
-	// } catch (error) {
-	// 	logger.error("Error sending message to Discord:", error);
-	// }
+const send_commit_message = async (message, USER) => {
+	try {
+		// Make a POST request to the webhook URL with message payload
+		await axios.post(webhookUrl, { content: message });
+		logger.info(`Message sent to Discord successfully, User ${USER}`);
+	} catch (error) {
+		logger.error("Error sending message to Discord:", error);
+	}
 };
-
-const lineReader = require("line-reader");
 
 lineReader.eachLine("usernames.txt", function (line, last) {
 	fetch_event_data(line);
