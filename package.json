@@ -1,17 +1,18 @@
 {
-  "name": "crons",
-  "version": "1.0.0",
-  "description": "",
-  "main": "cron.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "author": "Tholkappiar",
-  "license": "ISC",
-  "dependencies": {
-    "axios": "^1.6.8",
-    "dotenv": "^16.4.5",
-    "line-reader": "^0.4.0",
-    "winston": "^3.13.0"
-  }
+	"name": "crons",
+	"version": "1.0.0",
+	"description": "",
+	"main": "cron.js",
+	"scripts": {
+		"test": "echo \"Error: no test specified\" && exit 1"
+	},
+	"author": "Tholkappiar",
+	"license": "ISC",
+	"dependencies": {
+		"axios": "^1.6.8",
+		"dotenv": "^16.4.5",
+		"line-reader": "^0.4.0",
+		"winston": "^3.13.0"
+	},
+	"type": "module"
 }

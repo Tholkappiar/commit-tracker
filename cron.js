@@ -1,9 +1,10 @@
-const axios = require("axios");
-require("dotenv").config();
-const { createLogger, transports, format } = require("winston");
+import axios from "axios";
+import dotenv from "dotenv";
+import { createLogger, transports, format } from "winston";
 const { combine, timestamp, printf } = format;
-const lineReader = require("line-reader");
+import { eachLine } from "line-reader";
 
+dotenv.config();
 // GitHub API key
 const GITHUB_API_KEY = process.env.GITHUB_API_KEY;
 const webhookUrl = process.env.DISCORD_WEBHOOK_URL;
@@ -24,8 +25,10 @@ const logger = createLogger({
 			({ level, message, timestamp }) => `${timestamp} [${level}]: ${message}`
 		)
 	),
-	transports: [new transports.File({ filename: "error.log", level: "error" })],
-	transports: [new transports.File({ filename: "error.log", level: "info" })],
+	transports: [
+		new transports.File({ filename: "error.log", level: "error" }),
+		new transports.File({ filename: "error.log", level: "info" }),
+	],
 });
 
 // Fetch the commit data using async and await
@@ -111,6 +114,7 @@ const formatted_Message = (USER, repository, commit_message) => {
 
 // Send the commit message to discord along with the commit url
 const send_commit_message = async (message, USER) => {
+	console.log(message);
 	try {
 		// Make a POST request to the webhook URL with message payload
 		await axios.post(webhookUrl, { content: message });
@@ -120,6 +124,6 @@ const send_commit_message = async (message, USER) => {
 	}
 };
 
-lineReader.eachLine("usernames.txt", function (line, last) {
+eachLine("usernames.txt", function (line, last) {
 	fetch_event_data(line);
 });
