@@ -81,30 +81,21 @@ const fetch_event_data = async (USER) => {
 
 // check the commit dates is equal to today's date
 const check_commit = (date) => {
-	// Date from the github API
-	// Format today's date to "dd/mm/yyyy"
-	const formattedCreatedAt = `${date.getDate().toString().padStart(2, "0")}/${(
-		date.getMonth() + 1
-	)
-		.toString()
-		.padStart(2, "0")}/${date.getFullYear()}`;
+    // Get the UTC date components
+    const utcYear = date.getUTCFullYear();
+    const utcMonth = date.getUTCMonth() + 1; // Months are zero-based, so add 1
+    const utcDay = date.getUTCDate();
 
-	const today = new Date();
-	const todayDate = new Date(
-		today.getFullYear(),
-		today.getMonth(),
-		today.getDate()
-	);
+    // Get the current date in UTC
+    const today = new Date();
+    const todayYear = today.getUTCFullYear();
+    const todayMonth = today.getUTCMonth() + 1; // Months are zero-based, so add 1
+    const todayDay = today.getUTCDate();
 
-	// Today's Date
-	// Format today's date to "dd/mm/yyyy"
-	let formattedToday = `${todayDate.getDate().toString().padStart(2, "0")}/${(
-		todayDate.getMonth() + 1
-	)
-		.toString()
-		.padStart(2, "0")}/${todayDate.getFullYear()}`;
-	return formattedCreatedAt == formattedToday ? true : false;
+    // Compare the formatted dates
+    return utcYear === todayYear && utcMonth === todayMonth && utcDay === todayDay;
 };
+
 
 // Format the Message and return the formatted message
 const formatted_Message = (USER, repository, commit_message) => {
@@ -124,6 +115,6 @@ const send_commit_message = async (message, USER) => {
 	}
 };
 
-eachLine("usernames.txt", function (line, last) {
+eachLine("./usernames.txt", function (line, last) {
 	fetch_event_data(line);
 });
