@@ -4,7 +4,8 @@ import { createLogger, transports, format } from "winston";
 const { combine, timestamp, printf } = format;
 import { eachLine } from "line-reader";
 
-dotenv.config();
+dotenv.config({ path: "/home/Tholkappiar2003/crons/commit-tracker/.env" });
+
 // GitHub API key
 const GITHUB_API_KEY = process.env.GITHUB_API_KEY;
 const webhookUrl = process.env.DISCORD_WEBHOOK_URL;
@@ -26,8 +27,14 @@ const logger = createLogger({
 		)
 	),
 	transports: [
-		new transports.File({ filename: "error.log", level: "error" }),
-		new transports.File({ filename: "error.log", level: "info" }),
+		new transports.File({
+			filename: "/home/Tholkappiar2003/crons/commit-tracker/error.log",
+			level: "error",
+		}),
+		new transports.File({
+			filename: "/home/Tholkappiar2003/crons/commit-tracker/error.log",
+			level: "info",
+		}),
 	],
 });
 
@@ -81,21 +88,22 @@ const fetch_event_data = async (USER) => {
 
 // check the commit dates is equal to today's date
 const check_commit = (date) => {
-    // Get the UTC date components
-    const utcYear = date.getUTCFullYear();
-    const utcMonth = date.getUTCMonth() + 1; // Months are zero-based, so add 1
-    const utcDay = date.getUTCDate();
+	// Get the UTC date components
+	const utcYear = date.getUTCFullYear();
+	const utcMonth = date.getUTCMonth() + 1; // Months are zero-based, so add 1
+	const utcDay = date.getUTCDate();
 
-    // Get the current date in UTC
-    const today = new Date();
-    const todayYear = today.getUTCFullYear();
-    const todayMonth = today.getUTCMonth() + 1; // Months are zero-based, so add 1
-    const todayDay = today.getUTCDate();
+	// Get the current date in UTC
+	const today = new Date();
+	const todayYear = today.getUTCFullYear();
+	const todayMonth = today.getUTCMonth() + 1; // Months are zero-based, so add 1
+	const todayDay = today.getUTCDate();
 
-    // Compare the formatted dates
-    return utcYear === todayYear && utcMonth === todayMonth && utcDay === todayDay;
+	// Compare the formatted dates
+	return (
+		utcYear === todayYear && utcMonth === todayMonth && utcDay === todayDay
+	);
 };
-
 
 // Format the Message and return the formatted message
 const formatted_Message = (USER, repository, commit_message) => {
@@ -105,7 +113,7 @@ const formatted_Message = (USER, repository, commit_message) => {
 
 // Send the commit message to discord along with the commit url
 const send_commit_message = async (message, USER) => {
-	console.log(message);
+	//	console.log(message);
 	try {
 		// Make a POST request to the webhook URL with message payload
 		await axios.post(webhookUrl, { content: message });
@@ -115,6 +123,9 @@ const send_commit_message = async (message, USER) => {
 	}
 };
 
-eachLine("./usernames.txt", function (line, last) {
-	fetch_event_data(line);
-});
+eachLine(
+	"/home/Tholkappiar2003/crons/commit-tracker/usernames.txt",
+	function (line, last) {
+		fetch_event_data(line);
+	}
+);
