@@ -3,6 +3,7 @@ import dotenv from "dotenv";
 import { createLogger, transports, format } from "winston";
 const { combine, timestamp, printf } = format;
 import { eachLine } from "line-reader";
+import Bottleneck from "bottleneck";
 
 dotenv.config({ path: "/home/Tholkappiar2003/crons/commit-tracker/.env" });
 
@@ -111,15 +112,29 @@ const formatted_Message = (USER, repository, commit_message) => {
 	return message;
 };
 
+// Rate limiter for Discord API
+const limiter = new Bottleneck({
+	maxConcurrent: 1,
+	minTime: 1000, // 1 request per second
+});
+
 // Send the commit message to discord along with the commit url
 const send_commit_message = async (message, USER) => {
-	//	console.log(message);
+	//console.log(message);
 	try {
 		// Make a POST request to the webhook URL with message payload
-		await axios.post(webhookUrl, { content: message });
+		await limiter.schedule(() => axios.post(webhookUrl, { content: message }));
 		logger.info(`Message sent to Discord successfully, User ${USER}`);
 	} catch (error) {
-		logger.error("Error sending message to Discord:", error);
+		if (error.response && error.response.status === 429) {
+			const retryAfter = error.response.headers["retry-after"] * 1000;
+			logger.error(
+				`Rate limit exceeded. Retrying after ${retryAfter / 1000} seconds.`
+			);
+			setTimeout(() => send_commit_message(message, USER), retryAfter);
+		} else {
+			logger.error("Error sending message to Discord:", error);
+		}
 	}
 };
 
